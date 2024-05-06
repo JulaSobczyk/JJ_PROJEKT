@@ -149,7 +149,7 @@ class Transformacje:
         """
             Algorytm przelicza współrzędne geodezyjne (BL) na współrzędne w układzie 1992 (XY)
         """
-    def blhto92(self, phi, lam):
+    def blto92(self, phi, lam):
         lam0 = (19 * np.pi)/180
         m = 0.9993
         wsp = []
@@ -178,7 +178,7 @@ class Transformacje:
             Następujący algorytm umożliwia przeliczenie współrzędnych geodezyjnych (BLH) na współrzędne w układzie 2000 (XY)
         """
 
-    def blhto00(self, phi, lam):
+    def blto00(self, phi, lam):
         m=0.999923
         print(phi, lam)
         wsp = []
@@ -256,26 +256,59 @@ class Transformacje:
             np.savetxt(f"WYNIK_{funkcja}.txt", wsp00, delimiter=";")
 
 
+# if __name__ == "__main__":
+#     # utworzenie obiektu
+#     geo = Transformacje(model = "WGS84")
+#     print(sys.argv)
+#     # dane XYZ geocentryczne
+#     # X = 3664940.500; Y = 1409153.590; Z = 5009571.170
+#     # phi, lam, h = geo.xyz2plh(X, Y, Z)
+#     # print(phi, lam, h)
+#     # phi, lam, h = geo.xyz2plh2(X, Y, Z)
+#     # print(phi, lam, h)
+    
+
+# with open ('wsp_inp.txt') as f:
+# 	lines = f.readlines()
+# 	lines = lines[4:]
+# #	pprint(lines)
+
+# 	coords_plh = []
+# 	for line in lines:
+# 		line = line.strip()
+# 		x_str, y_str, z_str = line.split(',')
+# 		x, y, z = (float(x_str), float(y_str), float(z_str))
+# 		p, l, h = geo.xyz2plh(x, y, z)
+# 		coords_plh.append([p, l, h])
+
+
+# with open ('result_xyz2plh.txt', 'w') as f:
+# 	for coords in coords_plh:
+# 		coords_plh_line = ',' .join([str(coord) for coord in coords_plh])
+# 		f.writelines(coords_plh_line + '\n')
+
+# #dlaczego jest powielona jedna wartosc kilkukrotnie?
+
 
 if __name__ == "__main__":
     try:
         parser = argparse.ArgumentParser(description="Podaj plik")
         parser.add_argument("-plik", type = str, help = "Podaj nazwę pliku, w którym znajdują się dane wejsciowe (ps. oprócz nazwy podaj rozszerzenie:)")
         parser.add_argument("-elip", type = str, help = "Wybierz elipsoidę, na której ma wykonać się transformacja, wpisz jedną: 'WGS84', 'GRS80', 'Elipsoida Krasowskiego' ")
-        parser.add_argument("-funkcja", type = str, help = "Wybierz transformację jaką chcesz obliczyć: 'XYZ_BLH', 'BLH_XYZ', 'XYZ_NEU' ")
+        parser.add_argument("-funkcja", type = str, help = "Wybierz transformację jaką chcesz obliczyć: 'xyz2plh', 'plh2xyz', 'xyz2neu', 'blto92', 'blto00' ")
         args = parser.parse_args()
     except SyntaxError:
         print("Niestety nie ma takiego pliku. Spróbuj podać pełną scieżkę do pliku lub upewnij się że wpisujesz dobrą nazwę")
                    
     
     elip = {'WGS84':[6378137.000, 0.00669438002290], 'GRS80':[6378137.000, 0.00669438002290], 'Elipsoida Krasowskiego':[6378245.000, 0.00669342162296]}
-    funkcja = {'XYZ_BLH' : 'hirvonen', 'BLH_XYZ' : 'filh2XYZ', 'XYZ_NEU' : 'xyz2neup', 'BL_PL1992' : 'cale92', 'BL_PL2000' : 'cale00'}
+    funkcja = {'XYZ_PLH' : 'xyz2plh', 'PLH_XYZ' : 'plh2xyz', 'XYZ_NEU' : 'xyz2neu', 'BL_PL1992' : 'blto92', 'BL_PL2000' : 'blto00'}
         
     try:
         geo = Transformacje(elip[args.elip.upper()])
         finito = geo.pliczek(args.plik, args.funkcja.upper())
         print("Zapisano")
-    except KeyError():
+    except KeyError:
         print("Podana funkcja/elipsoida nie istnieją, proszę upewnij się, że korzystasz z istniejących elipsoid")
     except AttributeError:
         print("Podana funkcja/elipsoida nie istnieje, proszę wprowadzić dostępne wartosci.")
