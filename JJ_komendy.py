@@ -95,6 +95,7 @@ class Transformacje:
             raise NotImplementedError(f"{jedn} - jednostka niezdefiniowana")
         
     
+    
     def plh2xyz(self, phi, lam, h):
         phi = radians(phi)
         lam = radians(lam)
@@ -107,41 +108,21 @@ class Transformacje:
     
     
     
-        # XYZ ---> NEU
-        """
-            Obliczenie macierzy Rneu
-        """
-    def Rneu(self, phi, lam):
-        Rneu = np.array([[-np.sin(phi) * np.cos(lam), -np.sin(lam), np.cos(phi) * np.cos(lam)],
-                         [-np.sin(phi) * np.sin(lam),  np.cos(lam), np.cos(phi) * np.sin(lam)],
-                         [             np.cos(phi),            0,             np.sin(phi)]])
-        return(Rneu)
-    
-    
-        """
-            Przeliczenie wsp XYZ na neu
-        """
-    def xyz2neu(self, X, Y, Z, X0, Y0, Z0):
-        neu = []
-        p = np.sqrt(X0**2 + Y0**2)
-        phi = np.arctan(Z0 / (p * (1 - self.ecc2)))
-        while True:
-            N = self.Npu(phi)
-            h = (p / np.cos(phi)) - N
-            phi_poprzednia = phi
-            phi = np.arctan((Z0 / p)/(1-((N * self.ecc2)/(N + h))))
-            if abs(phi_poprzednia - phi) < (0.000001/206265):
-                break 
-        N = self.Npu(phi)
-        h = p/np.cos(phi) - N
-        lam = np.arctan(Y0 / X0)
         
-        R_neu = self.Rneu(phi, lam)
-        X_sr = [X - X0, Y - Y0, Z - Z0] 
-        X_rneu = R_neu.T@X_sr
-        neu.append(X_rneu.T)
-            
-        return(neu)
+    def xyz2neu(self, x, y, z, x_0, y_0, z_0):
+        phi, lam, _ = [radians(coord) for coord in self.xyz2plh(x, y, z)]
+        
+        R = np.array([[-sin(lam),  -sin(phi)*cos(lam), cos(phi)*cos(lam)],
+                      [ cos(lam),  -sin(phi)*sin(lam), cos(phi)*sin(lam)],
+                      [    0,          cos(phi),          sin(phi)     ]])
+        
+        xyz_t = np.array([[x - x_0],
+                          [y - y_0],
+                          [z - z_0]])
+        
+        [[E], [N], [U]] = R.T @ xyz_t
+        
+        return N, E, U
 
 
 
@@ -216,80 +197,90 @@ class Transformacje:
             wsp.append([x00, y00])
         return(wsp)  
         
-    def pliczek(self, plik, funkcja):
-        data = np.genfromtxt(plik,  delimiter = " ")
-        if funkcja == "XYZ_BLH":
-            X = data[:,0]
-            Y = data[:,1]
-            Z = data[:,2]
-                # to zmienic e starej wersji, bedzie latwiej
-            blh = self.hirvonen(X, Y, Z)
-            np.savetxt(f"WYNIK_{funkcja}.txt", blh, delimiter=";")
 
-        elif funkcja == "BLH_XYZ":
-            fi = np.deg2rad(data[:,0])
-            lam = np.deg2rad(data[:,1])
-            h = data[:,2]
-            XYZ = self.filh2XYZ(fi, lam, h)
-            np.savetxt(f"WYNIK_{funkcja}.txt",XYZ, delimiter=";")
-            
-        elif funkcja == "XYZ_NEU":
-            X0 = data[0,0]
-            Y0 = data[0,1]
-            Z0 = data[0,2]
-            X = data[1,0]
-            Y = data[1,1]
-            Z = data[1,2]
-            neu = self.xyz2neup(X, Y, Z, X0, Y0, Z0)
-            np.savetxt(f"WYNIK_{funkcja}.txt", neu, delimiter=";")
-            
-        elif funkcja == "BL_PL1992":
-            fi = np.deg2rad(data[:,0])
-            lam = np.deg2rad(data[:,1])
-            wsp92 = self.cale92(fi, lam)
-            np.savetxt(f"WYNIK_{funkcja}.txt", wsp92, delimiter=";")
-            
-        elif funkcja == "BL_PL2000":
-            fi = np.deg2rad(data[:,0])
-            lam = np.deg2rad(data[:,1])
-            wsp00 = self.cale00(fi, lam)
-            np.savetxt(f"WYNIK_{funkcja}.txt", wsp00, delimiter=";")
-
-
-# if __name__ == "__main__":
-#     # utworzenie obiektu
-#     geo = Transformacje(model = "WGS84")
-#     print(sys.argv)
-#     # dane XYZ geocentryczne
-#     # X = 3664940.500; Y = 1409153.590; Z = 5009571.170
-#     # phi, lam, h = geo.xyz2plh(X, Y, Z)
-#     # print(phi, lam, h)
-#     # phi, lam, h = geo.xyz2plh2(X, Y, Z)
-#     # print(phi, lam, h)
+if __name__ == "__main__":
+    # utworzenie obiektu
+    geo = Transformacje(model = "WGS84")
+    # dane XYZ geocentryczne
+    # X = 3664940.500; Y = 1409153.590; Z = 5009571.170
+    # phi, lam, h = geo.xyz2plh(X, Y, Z)
+    # print(phi, lam, h)
+    # phi, lam, h = geo.xyz2plh2(X, Y, Z)
+    # print(phi, lam, h)
     
-
-# with open ('wsp_inp.txt') as f:
-# 	lines = f.readlines()
-# 	lines = lines[4:]
-# #	pprint(lines)
-
-# 	coords_plh = []
-# 	for line in lines:
-# 		line = line.strip()
-# 		x_str, y_str, z_str = line.split(',')
-# 		x, y, z = (float(x_str), float(y_str), float(z_str))
-# 		p, l, h = geo.xyz2plh(x, y, z)
-# 		coords_plh.append([p, l, h])
+    input_file_path = sys.argv[-1]
+    if '--header_lines' in sys.argv:
+        header_lines = int(sys.argv[2])
+    if '--xyz2plh' in sys.argv and '--plh2xyz' in sys.argv:
+        print('Możesz podać tylko jedną flagę')
+        
+    elif '--xyz2plh' in sys.argv:
+        with open (input_file_path, 'r') as f:
+         	lines = f.readlines()
+         	lines = lines[4:]
 
 
-# with open ('result_xyz2plh.txt', 'w') as f:
-# 	for coords in coords_plh:
-# 		coords_plh_line = ',' .join([str(coord) for coord in coords_plh])
-# 		f.writelines(coords_plh_line + '\n')
+         	coords_plh = []
+         	for line in lines:
+                 line = line.strip()
+                 phi_str, lam_str, h_str = line.split(',')
+                 x, y, z = (float(phi_str), float(lam_str), float(h_str))
+                 p, l, h = geo.xyz2plh(x, y, z)
+                 coords_plh.append([p, l, h])
 
-# #dlaczego jest powielona jedna wartosc kilkukrotnie?
+        with open ('result_xyz2plh.txt', 'w') as f:
+            f.write('phi[deg], lam[deg], h[m] \n')
+            for coords in coords_plh:
+                coords_plh_line = ','.join([str(coord) for coord in coords])
+                f.writelines(coords_plh_line + '\n')
+                
+    elif '--plh2xyz' in sys.argv:
+        with open (input_file_path, 'r') as f:
+         	lines = f.readlines()
+         	lines = lines[1:]
+
+         	coords_xyz = []
+         	for line in lines:
+                 line = line.strip()
+                 phi_str, lam_str, h_str = line.split(',')
+                 phi, lam, h = (float(phi_str), float(lam_str), float(h_str))
+                 x, y, z = geo.xyz2plh(phi, lam, h)
+                 coords_xyz.append([x, y, z])
+
+        with open ('result_plh2xyz.txt', 'w') as f:
+            f.write('x[m], y[m], z[m] \n')
+            for coords in coords_xyz:
+                coords_xyz_line = ','.join([str(coord) for coord in coords])
+                f.write(coords_xyz_line + '\n')
+                
+                
+    elif '--xyz2neu' in sys.argv:
+        with open (input_file_path, 'r') as f:
+         	lines = f.readlines()
+         	lines = lines[4:]
 
 
+         	coords_neu = []
+         	for line in lines:
+                 line = line.strip()
+                 x, y, z = line.split(',')
+                 x, y, z = (float(x), float(y), float(z))
+                 x_0, y_0, z_0 = [float(coord) for coord in sys.argv[-4:-1]]
+                 n, e, u = geo.xyz2neu(x, y, z, x_0, y_0, z_0)
+                 coords_neu.append([n, e, u])
+
+        with open ('result_xyz2neu.txt', 'w') as f:
+            f.write('n[m], e[m], u[m] \n')
+            for coords in coords_neu:
+                coords_neu_line = ','.join([f'{coord:11.3f}' for coord in coords])
+                f.writelines(coords_neu_line + '\n')
+
+
+
+
+
+
+#%%
 if __name__ == "__main__":
     try:
         parser = argparse.ArgumentParser(description="Podaj plik")
