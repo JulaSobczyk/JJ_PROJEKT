@@ -3,7 +3,6 @@ import sys
 import numpy as np
 import argparse
 
-o = object()
 
 class Transformacje:
     def __init__(self, model: str = "WGS84"):
@@ -39,23 +38,47 @@ class Transformacje:
         Funkcje transforacji współrzędnych
         """
         
-    def xyz2plh(self, X, Y, Z):
-        wyniki = []
-        for X, Y, Z in zip(X, Y, Z):
-            p = np.sqrt(X**2+Y**2)
-            phi = np.arctan(Z/(p*(1-self.ecc2)))
-            while True:
-                N = self.Npu(phi)
-                h = (p/np.cos(phi)) - N
-                phi_prev = phi
-                phi = np.arctan((Z / p)/(1 - ((N * self.ecc2) / (N + h))))
-                if abs(phi_prev - phi)<(0.000001/206265):
-                    break
-            N = self.Npu(phi)
-            h = p / np.cos(phi) - N
-            lam = np.arctan(Y / X)
-            wyniki.append([np.rad2deg(phi), np.rad2deg(lam), h])
-        return wyniki
+    def xyz2plh(self, X, Y, Z, output = 'dec_degree'):
+        """
+        Algorytm Hirvonena - algorytm transformacji współrzędnych ortokartezjańskich (x, y, z)
+        na współrzędne geodezyjne długość szerokość i wysokośc elipsoidalna (phi, lam, h). Jest to proces iteracyjny. 
+        W wyniku 3-4-krotneej iteracji wyznaczenia wsp. phi można przeliczyć współrzędne z dokładnoscią ok 1 cm.     
+        Parameters
+        ----------
+        X, Y, Z : FLOAT
+             współrzędne w układzie orto-kartezjańskim, 
+
+        Returns
+        -------
+        lat
+            [stopnie dziesiętne] - szerokość geodezyjna
+        lon
+            [stopnie dziesiętne] - długośc geodezyjna.
+        h : TYPE
+            [metry] - wysokość elipsoidalna
+        output [STR] - optional, defoulf 
+            dec_degree - decimal degree
+            dms - degree, minutes, sec
+        """
+        r   = sqrt(X**2 + Y**2)           # promień
+        lat_prev = atan(Z / (r * (1 - self.ecc2)))    # pierwsze przybliilizenie
+        lat = 0
+        while abs(lat_prev - lat) > 0.000001/206265:    
+            lat_prev = lat
+            N = self.a / sqrt(1 - self.ecc2 * sin(lat_prev)**2)
+            h = r / cos(lat_prev) - N
+            lat = atan((Z/r) * (((1 - self.ecc2 * N/(N + h))**(-1))))
+        lon = atan(Y/X)
+        N = self.a / sqrt(1 - self.ecc2 * (sin(lat))**2);
+        h = r / cos(lat) - N       
+        if output == "dec_degree":
+            return degrees(lat), degrees(lon), h 
+        elif output == "dms":
+            lat = self.deg2dms(degrees(lat))
+            lon = self.deg2dms(degrees(lon))
+            return f"{lat[0]:02d}:{lat[1]:02d}:{lat[2]:.2f}", f"{lon[0]:02d}:{lon[1]:02d}:{lon[2]:.2f}", f"{h:.3f}"
+        else:
+            raise NotImplementedError(f"{output} - output format not defined")
     
     
     def plh2xyz(self, phi, lam, h):
@@ -177,7 +200,7 @@ if __name__ == "__main__":
     elif '--xyz2plh' in sys.argv:
         with open (input_file_path, 'r') as f:
          	lines = f.readlines()
-         	lines = lines[header_lines]
+         	lines = lines[header_lines:]
 
 
          	coords_plh = []
@@ -197,7 +220,7 @@ if __name__ == "__main__":
     elif '--plh2xyz' in sys.argv:
         with open (input_file_path, 'r') as f:
          	lines = f.readlines()
-         	lines = lines[header_lines]
+         	lines = lines[header_lines:]
 
          	coords_xyz = []
          	for line in lines:
@@ -215,12 +238,11 @@ if __name__ == "__main__":
                 
                 
     elif '--xyz2neu' in sys.argv:
+       
+        coords_neu = []
         with open (input_file_path, 'r') as f:
          	lines = f.readlines()
-         	lines = lines[header_lines]
-
-
-         	coords_neu = []
+         	lines = lines[header_lines:]
          	for line in lines:
                  line = line.strip()
                  x, y, z = line.split(',')
