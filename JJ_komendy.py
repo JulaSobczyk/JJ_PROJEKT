@@ -25,14 +25,6 @@ class Transformacje:
     def Npu(self, phi):
         N = self.a / np.sqrt(1 - self.ecc2 * np.sin(phi)**2)
         return(N)
-
-    def Sigma(self, phi):
-        A0 = 1 - (self.ecc2/4) - ((3*(self.ecc2)**2)/64) -  ((5*(self.ecc2)**3)/256)
-        A2 = (3/8) * (self.ecc2 + ((self.ecc2)**2 / 4) + ((15*(self.ecc2)**3) / 128))
-        A4 = (15/256) * ((self.ecc2)**2 + ((3*((self.ecc2)**3)) / 4))
-        A6 = (35 * (self.ecc2)**3) / 3072
-        sigma = self.a * ( A0 * phi - A2 * np.sin(2*phi) + A4 * np.sin(4*phi) - A6 * np.sin(6*phi))
-        return(sigma)
         
         """
         Funkcje transforacji współrzędnych
@@ -84,11 +76,11 @@ class Transformacje:
     def plh2xyz(self, phi, lam, h):
         phi = radians(phi)
         lam = radians(lam)
-        Rn = self.a / sqrt(1 - self.ecc2 * sin(phi)**2)
-        q = Rn * self.ecc2 * sin(phi)
-        x = (Rn + h) * cos(phi) * cos(lam)
-        y = (Rn + h) * cos(phi) * sin(lam)
-        z = (Rn + h) * sin(phi) * q
+        # Rn = self.a / sqrt(1 - self.ecc2 * sin(phi)**2)
+        # q = Rn * self.ecc2 * sin(phi)
+        x = (self.Npu(phi) + h) * cos(phi) * cos(lam)
+        y = (self.Npu(phi) + h) * cos(phi) * sin(lam)
+        z = (self.Npu(phi) * (1 - self.ecc2) + h) * sin(phi)
         return x, y, z
     
         
@@ -116,67 +108,66 @@ class Transformacje:
     def BLto92(self, phi, lam, m=0.9993):  
         lam0 = np.deg2rad(19)
         wyniki = []
-        for phi, lam in zip (phi, lam):   
-            b2 = self.a**2 * (1 - self.ecc2)
-            ep2 = (self.a**2 - b2) / b2
-            dlam = lam - lam0
-            t = np.tan(phi)
-            ni2 = ep2 * (np.cos(phi)**2)
-            N = self.Npu(phi)
+        # for phi, lam in zip (phi, lam):   
+        b2 = self.a**2 * (1 - self.ecc2)
+        ep2 = (self.a**2 - b2) / b2
+        dlam = lam - lam0
+        t = np.tan(phi)
+        ni2 = ep2 * (np.cos(phi)**2)
+        N = self.Npu(phi)
          
-            A0 = 1- (self.ecc2 / 4) - (3 * self.e2**2 / 64) - (5 * self.e2**3 / 256)
-            A2 = (3/8) * (self.ecc2 + (self.ecc2**2 / 4) + (15 * self.ecc2**3 / 128))
-            A4 = (15/256) * (self.ecc2**2 + ((3 * self.e2**3) / 4))
-            A6 = (35 * self.ecc2**3) / 3072
-            sigma = self.a * (A0 * phi - A2 * np.sin(2*phi) + A4 * np.sin(4 * phi) - A6 * np.sin( 6 * phi))
+        A0 = 1- (self.ecc2 / 4) - (3 * self.ecc2**2 / 64) - (5 * self.ecc2**3 / 256)
+        A2 = (3/8) * (self.ecc2 + (self.ecc2**2 / 4) + (15 * self.ecc2**3 / 128))
+        A4 = (15/256) * (self.ecc2**2 + ((3 * self.ecc2**3) / 4))
+        A6 = (35 * self.ecc2**3) / 3072
+        sigma = self.a * (A0 * phi - A2 * np.sin(2*phi) + A4 * np.sin(4 * phi) - A6 * np.sin( 6 * phi))
+    
+        xgk =  sigma + (((dlam**2 / 2) * N * np.sin(phi) * np.cos(phi)) * (1 + ((dlam**2 / 12) * (np.cos(phi)**2) * (5 - t**2 + 9 * ni2 + 4 * ni2**2)) + ((dlam**4 / 360) * (np.cos(phi)**4) * (61 - 58 * t**2 + t**4 + 270 * ni2 - 330 * ni2 * t**2))))
+        ygk =  (dlam* N * np.cos(phi))  *   ( 1 +  ((dlam**2/6)   *   (np.cos(phi)**2)   *  (1 - t**2 + ni2))     +     (((dlam**4/120)*(np.cos(phi)**4)) * (5 - (18*t**2) + t**4 + (14 * ni2) - (58*ni2*t**2))))
         
-            xgk =  sigma + (((dlam**2 / 2) * N * np.sin(phi) * np.cos(phi)) * (1 + ((dlam**2 / 12) * (np.cos(phi)**2) * (5 - t**2 + 9 * ni2 + 4 * ni2**2)) + ((dlam**4 / 360) * (np.cos(phi)**4) * (61 - 58 * t**2 + t**4 + 270 * ni2 - 330 * ni2 * t**2))))
-            ygk =  (dellam* N * np.cos(fi))  *   ( 1 +  ((dellama**2/6)   *   (np.cos(fi)**2)   *  (1 - t**2 + ni2))     +     (((dellama**4/120)*(np.cos(fi)**4)) * (5 - (18*t**2) + t**4 + (14 * ni2) - (58*ni2*t**2))))
-        
-            x92 = xgk * m - 5300000
-            y92 = ygk*m + 500000
-            wyniki.append([x92,y92])
+        x92 = xgk * m - 5300000
+        y92 = ygk*m + 500000
+        wyniki.append([x92,y92])
 
         return  wyniki
 
-    def BLto2000(self,fi,lama,m=0.999923):
+    def BLto2000(self,phi,lam,m=0.999923):
         wyniki = []
-        for fi, lama in zip (fi,lama):
-            lama0 = 0
-            strefa = 0
-            if lama >np.deg2rad(13.5) and lama < np.deg2rad(16.5):
-                strefa = 5
-                lama0 = np.deg2rad(15)
-            elif lama >np.deg2rad(16.5) and lama < np.deg2rad(19.5):
-                strefa = 6
-                lama0 = np.deg2rad(18)
-            elif lama >np.deg2rad(19.5) and lama < np.deg2rad(22.5):
-                strefa =7
-                lama0 = np.deg2rad(21)
-            elif lama >np.deg2rad(22.5) and lama < np.deg2rad(25.5):
-                strefa = 8
-                lama0 = np.deg2rad(24)
+        # for phi, lam in zip (phi,lam):
+        lama0 = 0
+        strefa = 0
+        if lam >np.deg2rad(13.5) and lam < np.deg2rad(16.5):
+            strefa = 5
+            lama0 = np.deg2rad(15)
+        elif lam >np.deg2rad(16.5) and lam < np.deg2rad(19.5):
+            strefa = 6
+            lama0 = np.deg2rad(18)
+        elif lam >np.deg2rad(19.5) and lam < np.deg2rad(22.5):
+            strefa =7
+            lama0 = np.deg2rad(21)
+        elif lam >np.deg2rad(22.5) and lam < np.deg2rad(25.5):
+            strefa = 8
+            lama0 = np.deg2rad(24)
             
-            b2 = self.a**2*(1-self.e2)    
-            ep2 = (self.a**2-b2)/b2
-            dellama = lama - lama0
-            t = np.tan(fi)
-            ni2 = ep2*(np.cos(fi)**2)
-            N = self.Npu(fi)
-             
-            A0 = 1- (self.e2/4)-(3*self.e2**2/64)-(5*self.e2**3/256)
-            A2 = (3/8)*(self.e2+(self.e2**2/4)+(15*self.e2**3/128))
-            A4 = (15/256)*(self.e2**2+((3*self.e2**3)/4))
-            A6 = (35*self.e2**3)/3072
-            
-            sigma = self.a *(A0*fi-A2*np.sin(2*fi)+A4*np.sin(4*fi)-A6*np.sin(6*fi))
-            
-            xgk =  sigma    +    ( ((dellama**2/2)*N*np.sin(fi)*np.cos(fi))    *    (1   +   ((dellama**2/12)*(np.cos(fi)**2)*(5 - t**2 + 9*ni2 + 4*ni2**2))      +         ((dellama**4/360)*(np.cos(fi)**4)*(61 - 58*t**2 + t**4 + 270*ni2 - 330*ni2*t**2))))
-            ygk =  (dellama* N * np.cos(fi))  *   ( 1 +  ((dellama**2/6)   *   (np.cos(fi)**2)   *  (1 - t**2 + ni2))     +     (((dellama**4/120)*(np.cos(fi)**4)) * (5 - (18*t**2) + t**4 + (14 * ni2) - (58*ni2*t**2))))
-            
-            x2000 = xgk * m 
-            y2000 = ygk*m + (strefa *1000000) +500000
-            wyniki.append([x2000,y2000])
+        b2 = self.a**2 * (1 - self.ecc2)
+        ep2 = (self.a**2 - b2) / b2
+        dlam = lam - lama0
+        t = np.tan(phi)
+        ni2 = ep2 * (np.cos(phi)**2)
+        N = self.Npu(phi)
+        
+        A0 = 1- (self.ecc2 / 4) - (3 * self.ecc2**2 / 64) - (5 * self.ecc2**3 / 256)
+        A2 = (3/8) * (self.ecc2 + (self.ecc2**2 / 4) + (15 * self.ecc2**3 / 128))
+        A4 = (15/256) * (self.ecc2**2 + ((3 * self.ecc2**3) / 4))
+        A6 = (35 * self.ecc2**3) / 3072
+        sigma = self.a * (A0 * phi - A2 * np.sin(2*phi) + A4 * np.sin(4 * phi) - A6 * np.sin( 6 * phi))
+    
+        xgk =  sigma + (((dlam**2 / 2) * N * np.sin(phi) * np.cos(phi)) * (1 + ((dlam**2 / 12) * (np.cos(phi)**2) * (5 - t**2 + 9 * ni2 + 4 * ni2**2)) + ((dlam**4 / 360) * (np.cos(phi)**4) * (61 - 58 * t**2 + t**4 + 270 * ni2 - 330 * ni2 * t**2))))
+        ygk =  (dlam* N * np.cos(phi))  *   ( 1 +  ((dlam**2/6)   *   (np.cos(phi)**2)   *  (1 - t**2 + ni2))     +     (((dlam**4/120)*(np.cos(phi)**4)) * (5 - (18*t**2) + t**4 + (14 * ni2) - (58*ni2*t**2))))
+    
+        x2000 = xgk * m 
+        y2000 = ygk*m + (strefa *1000000) +500000
+        wyniki.append([x2000,y2000])
             
         return  wyniki  
         
@@ -184,16 +175,13 @@ class Transformacje:
 if __name__ == "__main__":
     # utworzenie obiektu
     geo = Transformacje(model = "WGS84")
-    # dane XYZ geocentryczne
-    # X = 3664940.500; Y = 1409153.590; Z = 5009571.170
-    # phi, lam, h = geo.xyz2plh(X, Y, Z)
-    # print(phi, lam, h)
-    # phi, lam, h = geo.xyz2plh2(X, Y, Z)
-    # print(phi, lam, h)
+    
     
     input_file_path = sys.argv[-1]
     if '--header_lines' in sys.argv:
         header_lines = int(sys.argv[2])
+    else:
+        print("Podaj flagę --header_lines oraz od której linijki w pliku zaczynają się dane")
     if '--xyz2plh' in sys.argv and '--plh2xyz' in sys.argv:
         print('Możesz podać tylko jedną flagę')
         
@@ -201,8 +189,6 @@ if __name__ == "__main__":
         with open (input_file_path, 'r') as f:
          	lines = f.readlines()
          	lines = lines[header_lines:]
-
-
          	coords_plh = []
          	for line in lines:
                  line = line.strip()
@@ -233,16 +219,16 @@ if __name__ == "__main__":
         with open ('result_plh2xyz.txt', 'w') as f:
             f.write('x[m], y[m], z[m] \n')
             for coords in coords_xyz:
-                coords_xyz_line = ','.join([f'{coord:11.3f}' for coord in coords])
+                coords_xyz_line = ','.join([str(coord)for coord in coords])
                 f.write(coords_xyz_line + '\n')
                 
                 
     elif '--xyz2neu' in sys.argv:
-       
-        coords_neu = []
+        coords_neu = [] 
         with open (input_file_path, 'r') as f:
          	lines = f.readlines()
          	lines = lines[header_lines:]
+             
          	for line in lines:
                  line = line.strip()
                  x, y, z = line.split(',')
@@ -256,6 +242,49 @@ if __name__ == "__main__":
             for coords in coords_neu:
                 coords_neu_line = ','.join([f'{coord:11.3f}' for coord in coords])
                 f.writelines(coords_neu_line + '\n')
+    
+    elif '--blto92' in sys.argv:
+        with open (input_file_path, 'r') as f:
+         	lines = f.readlines()
+         	lines = lines[header_lines:]
+         	coords_bl92 = []
+             
+         	for line in lines:
+                 line = line.strip()
+                 phi, lam, h = line.split(',')
+                 phi, lam, h = (float(phi), float(lam), float(h))
+                 result = geo.BLto92(phi, lam)
+                 x92, y92 = result[0]  # Pobierz wartości x92 i y92 z wyniku funkcji
+                 coords_bl92.append([x92, y92])
+
+        with open ('result_blto92.txt', 'w') as f:
+            f.write('x[m], y[m] \n')
+            for coords in coords_bl92:
+                coords_bl92_line = ','.join([str(coord) for coord in coords])
+                f.writelines(coords_bl92_line + '\n')
+                
+    elif '--blto2000' in sys.argv:
+        with open (input_file_path, 'r') as f:
+         	lines = f.readlines()
+         	lines = lines[header_lines:]
+         	coords_bl2000 = []
+             
+         	for line in lines:
+                 line = line.strip()
+                 phi, lam, h = line.split(',')
+                 phi, lam, h = (float(phi), float(lam), float(h))
+                 result = geo.BLto2000(phi, lam)
+                 x2000, y2000 = result[0]  # Pobierz wartości x92 i y92 z wyniku funkcji
+                 coords_bl2000.append([x2000, y2000])
+
+        with open ('result_blto2000.txt', 'w') as f:
+            f.write('x[m], y[m] \n')
+            for coords in coords_bl2000:
+                coords_bl2000_line = ','.join([str(coord) for coord in coords])
+                f.writelines(coords_bl2000_line + '\n')
+                
+                
+
 
 
 
