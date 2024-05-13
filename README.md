@@ -41,6 +41,10 @@ Program został napisany dla systemu operacyjnego Windows 10, w programie Spyder
 3.	W tym samym folderze, w którym masz zapisany program utwórz plik z danymi do transformacji
 4.	Otwórz Wiersz poleceń
 5.	W wierszu poleceń otwórz odpowiednią ścieżkę (tam gdzie masz zapisany program)
-6.	Do wiersza poleceń wpisz wybraną nazwę transformacji wg schematu poniżej.
-7.	Program wykona transformację i zapisze plik z wynikami do folderu, w którym pracujesz
+6.	Do wiersza poleceń wpisz wybraną nazwę transformacji wg schematu poniżej. (TUTAJ)
+7.	Program wykona transformację i zapisze plik z wynikami do folderu, w którym pracujesz.
+
+Problemy napotkane przy sprawdzaniu programu:
+- Występował problem podczas pisania kodu z wykorzystaniem i użytkowaniem bloków <try:, except:> oraz z samym zapisem do plików.
+- Pojawił się problem przy napisaniu kodu programu, w którym użytkownik sam wybiera elipsoidę w jakiej chce liczyć. Zamiast tego elipsoidy i transformacje do nich są odgórnie narzucone w postaci osobnych flag w terminalu.
 
