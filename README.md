@@ -55,7 +55,7 @@ Program został napisany dla systemu operacyjnego Windows 10, w programie Spyder
 Program przelicza współrzędne w trzech różnych elipsoidach (WGS84, GRS80 oraz Krasowskiego) oraz zmienia je między pięcioma różnym transformacjami (XYZ -> PLH, PLH -> XYZ, XYZ -> NEU, BL -> PL1992, BL -> PL2000). Wszystkie tansformacje wykonuje się z poziomu Wiersza poleceń, dalej nazywane skrótem 'cmd'. Aby uruchomić program, w pierwszej kolejnośc należy włączyć cmd i przejść w nim do folderu w któym znajduje się pobrany z repozytorium skrypt kodu. Następnie kolejność wpisywania transformacji w konsoli wygląda następująco:
 
 
-**python JJ_komendy.py --header_lines <cyfra oznaczająca od którego miejsca w pliku z danymi, te dane się rozpoczynają po nagłówku, licząc linijki kolejno od 0>  <flaga transformacji> <nazwa pliku z danymi, włączcie z jego rozszerzeniem>**
+**python JJ_komendy.py --header_lines <cyfra oznaczająca od którego miejsca w pliku z danymi, te dane się rozpoczynają po nagłówku, licząc linijki kolejno od 0>  <flaga transformacji> <nazwa pliku z danymi, włącznie z jego rozszerzeniem>**
 
 
 *W terminalu wygląda to dla przykładu nastepująco*
@@ -85,7 +85,7 @@ Użytkownik wybiera spośród zaprogramowanych piętnastu flag, które odpowiada
 - *--blto92_kra* -> Transformacja współrzędnych PLH (BL) do PL1992 dla elipsoidy Krasowskiego
 - *--blto2000_kra* -> Transformacja współrzędnych PLH (BL) do PL2000 dla elipsoidy Krasowskiego
 
-Użytkownik nie ma możliwości dodawać własnej elipsoidy, dla której program transformował by współrzędne, więc jedyne czym może się podługiwać to wybieraniem odpowiednich flag. 
+Użytkownik nie ma możliwości dodawać własnej elipsoidy, dla której program transformował by współrzędne, więc jedyne czym może się posługiwać to wybieraniem odpowiednich flag. 
 
 Należy pilnować, aby flaga jak i nazwa pliku z danymi były poprawnie wpisane. W przeciwnym wypadku program albo nie pokaże nic, albo pokaże, że wystapił błąd i co jest jego przyczyną.
 
@@ -103,7 +103,7 @@ A tak zachowuje się, gdy pojawił się jakiś błąd w zapisie:
   ![image](https://github.com/JulaSobczyk/JJ_projekt_repository/assets/166397896/633ab701-4df8-4d6c-8993-1f879689ed72)
 
 Uwagi końcowe przy użytkowaniu programu:
-- Plik ze współrzędnymi do transformacji musi się znajdować w tym samym folderze co skryp kodu i w którym otwarty mamy 'cmd'. Jednoczeście w samym pliku współrzędne muszą być zapisane poprzez oddzielenie kolejnej współrzędnej przecinkiem oraz, aby np. współrzędne X były w jednej kolumnie, współrzędne Y w drugiej kolumnie obok i współrzędne Z w trzeciej kolumnie. Dla przykładu tak wygląda dobry zapis pliku z danymi:
+- Plik ze współrzędnymi do transformacji musi się znajdować w tym samym folderze co skrypt kodu i w którym otwarty mamy 'cmd'. Jednoczeście w samym pliku współrzędne muszą być zapisane poprzez oddzielenie kolejnej współrzędnej przecinkiem oraz, aby np. współrzędne X były w jednej kolumnie, współrzędne Y w drugiej kolumnie obok i współrzędne Z w trzeciej kolumnie. Dla przykładu tak wygląda dobry zapis pliku z danymi:
   
 ![image](https://github.com/JulaSobczyk/JJ_projekt_repository/assets/166397896/efeb2dbd-f2a3-4e7a-9ea9-25b44a1eac31)
 
@@ -111,7 +111,7 @@ Uwagi końcowe przy użytkowaniu programu:
 
 ![image](https://github.com/JulaSobczyk/JJ_projekt_repository/assets/166397896/6fb0d8b7-1a2e-4856-a80c-ecb69e95f588)
 
-- Plik z przeliczonymi współrzędnymi zapisuje się w tym samym folderze, w którym znajduje się skryp kodu oraz plik z danymi współrzędnymi
+- Plik z przeliczonymi współrzędnymi zapisuje się w tym samym folderze, w którym znajduje się skrypt kodu oraz plik z danymi współrzędnymi
   
 ## Problemy napotkane przy sprawdzaniu programu:
 - Pojawił się problem przy napisaniu kodu programu, w którym użytkownik sam wybiera elipsoidę w jakiej chce liczyć. Zamiast tego elipsoidy i transformacje do nich są odgórnie narzucone w postaci osobnych flag w terminalu.
