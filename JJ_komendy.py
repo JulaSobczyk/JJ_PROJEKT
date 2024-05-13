@@ -23,6 +23,7 @@ class Transformacje:
         
         
     def Npu(self, phi):
+        phi = radians(phi)
         N = self.a / np.sqrt(1 - self.ecc2 * np.sin(phi)**2)
         return(N)
         
@@ -55,10 +56,10 @@ class Transformacje:
     def plh2xyz(self, phi, lam, h):
         phi = radians(phi)
         lam = radians(lam)
-        x = (self.Npu(phi) + h) * cos(phi) * cos(lam)
-        y = (self.Npu(phi) + h) * cos(phi) * sin(lam)
-        z = (self.Npu(phi) * (1 - self.ecc2) + h) * sin(phi)
-        return x, y, z
+        X = (self.Npu(phi) + h) * cos(phi) * cos(lam)
+        Y = (self.Npu(phi) + h) * cos(phi) * sin(lam)
+        Z = (self.Npu(phi) * (1 - self.ecc2) + h) * sin(phi)
+        return X, Y, Z
     
         
     def xyz2neu(self, x, y, z, x_0, y_0, z_0):
@@ -84,6 +85,8 @@ class Transformacje:
         """
     def BLto92(self, phi, lam, m=0.9993):  
         lam0 = np.deg2rad(19)
+        phi = np.radians(phi)
+        lam = np.radians(lam)
         wyniki = []
         # for phi, lam in zip (phi, lam):   
         b2 = self.a**2 * (1 - self.ecc2)
@@ -110,7 +113,8 @@ class Transformacje:
 
     def BLto2000(self,phi,lam,m=0.999923):
         wyniki = []
-        # for phi, lam in zip (phi,lam):
+        phi = np.radians(phi)
+        lam = np.radians(lam)
         lama0 = 0
         strefa = 0
         if lam >np.deg2rad(13.5) and lam < np.deg2rad(16.5):
