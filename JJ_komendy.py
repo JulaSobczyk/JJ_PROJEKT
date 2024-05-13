@@ -169,9 +169,11 @@ if __name__ == "__main__":
             
             dozwolone_flagi = ["--xyz2plh_geo", "--plh2xyz_geo", "--xyz2neu_geo", "--blto92_geo", "--blto2000_geo", "--xyz2plh_g80", "--plh2xyz_g80", 
                                "--xyz2neu_g80", "--blto92_g80", "--blto2000_g80","--xyz2plh_kra", "--plh2xyz_kra", "--xyz2neu_kra", "--blto92_kra", "--blto2000_kra"]
+            
+
             if len([arg for arg in sys.argv if arg in dozwolone_flagi]) > 1:
                 print("BŁĄD: Wpisano więcej niż jedną flagę.")
-
+                
             elif '--xyz2plh_geo' in sys.argv:
                 with open(input_file_path, 'r') as f:
                	  lines = f.readlines()
@@ -191,6 +193,7 @@ if __name__ == "__main__":
                         coords_plh_linegeo = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_plh_linegeo + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--plh2xyz_geo' in sys.argv:
                 with open(input_file_path, 'r') as f:
@@ -212,6 +215,7 @@ if __name__ == "__main__":
                         coords_xyz_linegeo = ','.join(
                             [str(coord)for coord in coords])
                         f.write(coords_xyz_linegeo + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--xyz2neu_geo' in sys.argv:
                 coords_neugeo = []
@@ -234,6 +238,7 @@ if __name__ == "__main__":
                         coords_neu_linegeo = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_neu_linegeo + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--blto92_geo' in sys.argv:
                 with open(input_file_path, 'r') as f:
@@ -255,6 +260,7 @@ if __name__ == "__main__":
                         coords_bl92_linegeo = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_bl92_linegeo + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--blto2000_geo' in sys.argv:
                 with open(input_file_path, 'r') as f:
@@ -276,6 +282,7 @@ if __name__ == "__main__":
                         coords_bl2000_linegeo = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_bl2000_linegeo + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
         #elipsoida grs80
             elif '--xyz2plh_g80' in sys.argv:
@@ -296,6 +303,7 @@ if __name__ == "__main__":
                         coords_plh_lineg80 = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_plh_lineg80 + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--plh2xyz_g80' in sys.argv:
                 with open(input_file_path, 'r') as f:
@@ -317,6 +325,7 @@ if __name__ == "__main__":
                         coords_xyz_lineg80 = ','.join(
                             [str(coord)for coord in coords])
                         f.write(coords_xyz_lineg80 + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--xyz2neu_g80' in sys.argv:
                 coords_neug80 = []
@@ -339,6 +348,7 @@ if __name__ == "__main__":
                         coords_neu_lineg80 = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_neu_lineg80 + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--blto92_g80' in sys.argv:
                 with open(input_file_path, 'r') as f:
@@ -360,6 +370,7 @@ if __name__ == "__main__":
                         coords_bl92_lineg80 = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_bl92_lineg80 + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--blto2000_g80' in sys.argv:
                 with open(input_file_path, 'r') as f:
@@ -381,6 +392,7 @@ if __name__ == "__main__":
                         coords_bl2000_lineg80 = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_bl2000_lineg80 + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
         #elipsoida krasowskiego
             elif '--xyz2plh_kra' in sys.argv:
@@ -401,6 +413,7 @@ if __name__ == "__main__":
                         coords_plh_linekra = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_plh_linekra + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--plh2xyz_kra' in sys.argv:
                 with open(input_file_path, 'r') as f:
@@ -422,6 +435,7 @@ if __name__ == "__main__":
                         coords_xyz_linekra = ','.join(
                             [str(coord)for coord in coords])
                         f.write(coords_xyz_linekra + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--xyz2neu_kra' in sys.argv:
                 coords_neukra = []
@@ -444,6 +458,7 @@ if __name__ == "__main__":
                         coords_neu_linekra = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_neu_linekra + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--blto92_kra' in sys.argv:
                 with open(input_file_path, 'r') as f:
@@ -465,6 +480,7 @@ if __name__ == "__main__":
                         coords_bl92_linekra = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_bl92_linekra + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
             elif '--blto2000_kra' in sys.argv:
                 with open(input_file_path, 'r') as f:
@@ -486,6 +502,8 @@ if __name__ == "__main__":
                         coords_bl2000_linekra = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_bl2000_linekra + '\n')
+                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
+                        
 
     except IndexError:
         print('BŁĄD: nie podano odpowiednich wartosci')
@@ -494,9 +512,9 @@ if __name__ == "__main__":
     except FileNotFoundError:
         print('BŁĄD: Niepoprawnie podana nazwa pliku z danymi początkowymi')
     except ValueError:
-        print('Podaj współrzędne geocentryczne srodka układu (neu)')
-    finally:
-        print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
- 
+        print('Błędnie zapisane współrzędne w pliku z danymi, lub jesli wykonujesz transformację neu, sprawdź czy wpisane są współrzędne srodka układu')
+    except TypeError:
+        print('Błędnie wpisano, którąs z flag lub argumenty. Sprawdz poprawnosć wpisana')
+
 
 
