@@ -158,314 +158,346 @@ if __name__ == "__main__":
     geo = Transformacje(model = "WGS84")
     g80 = Transformacje(model = "GRS80")
     kra = Transformacje(model = "Elipsoida Krasowskiego")
-    
-    input_file_path = sys.argv[-1]
-    if '--header_lines' in sys.argv:
-        header_lines = int(sys.argv[2])
-    else:
-        print("Podaj flagę --header_lines oraz od której linijki w pliku zaczynają się dane")
-    if '--xyz2plh' in sys.argv and '--plh2xyz' in sys.argv:
-        print('Możesz podać tylko jedną flagę')
-        
-    elif '--xyz2plh_geo' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-         	coords_plhgeo = []
-         	for line in lines:
-                 line = line.strip()
-                 x_str, y_str, z_str = line.split(',')
-                 x, y, z = (float(x_str), float(y_str), float(z_str))
-                 p, l, h = geo.xyz2plh(x, y, z)
-                 coords_plhgeo.append([p, l, h])
+    try:
+        if '--header_lines' not in sys.argv:
+            print('BŁĄD: Nie podano flagi --header_lines')            
+        else:
+            input_file_path = sys.argv[-1]
+            if '--header_lines' in sys.argv:
+                header_lines = int(sys.argv[2])
+            else:
+                print("Podaj flagę --header_lines oraz od której linijki w pliku zaczynają się dane")
+            
+            dozwolone_flagi = ["--xyz2plh_geo", "--plh2xyz_geo", "--xyz2neu_geo", "--blto92_geo", "--blto2000_geo", "--xyz2plh_g80", "--plh2xyz_g80", 
+                               "--xyz2neu_g80", "--blto92_g80", "--blto2000_g80","--xyz2plh_kra", "--plh2xyz_kra", "--xyz2neu_kra", "--blto92_kra", "--blto2000_kra"]
+            if len([arg for arg in sys.argv if arg in dozwolone_flagi]) > 1:
+                print("BŁĄD: Wpisano więcej niż jedną flagę.")
 
-        with open ('result_xyz2plh_wgs84.txt', 'w') as f:
-            f.write('phi[deg], lam[deg], h[m] \n')
-            for coords in coords_plhgeo:
-                coords_plh_linegeo = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_plh_linegeo + '\n')
-                
-    elif '--plh2xyz_geo' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
+            elif '--xyz2plh_geo' in sys.argv:
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
+                   
+               	coords_plhgeo = []
+               	for line in lines:
+                    line = line.strip()
+                    x_str, y_str, z_str = line.split(',')
+                    x, y, z = (float(x_str), float(y_str), float(z_str))
+                    p, l, h = geo.xyz2plh(x, y, z)
+                    coords_plhgeo.append([p, l, h])
 
-         	coords_xyzgeo = []
-         	for line in lines:
-                 line = line.strip()
-                 phi_str, lam_str, h_str = line.split(',')
-                 phi, lam, h = (float(phi_str), float(lam_str), float(h_str))
-                 x, y, z = geo.xyz2plh(phi, lam, h)
-                 coords_xyzgeo.append([x, y, z])
+                with open('result_xyz2plh_wgs84.txt', 'w') as f:
+                    f.write('phi[deg], lam[deg], h[m] \n')
+                    for coords in coords_plhgeo:
+                        coords_plh_linegeo = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_plh_linegeo + '\n')
 
-        with open ('result_plh2xyz_wgs84.txt', 'w') as f:
-            f.write('x[m], y[m], z[m] \n')
-            for coords in coords_xyzgeo:
-                coords_xyz_linegeo = ','.join([str(coord)for coord in coords])
-                f.write(coords_xyz_linegeo + '\n')
-                
-                
-    elif '--xyz2neu_geo' in sys.argv:
-        coords_neugeo = [] 
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-             
-         	for line in lines:
-                 line = line.strip()
-                 x, y, z = line.split(',')
-                 x, y, z = (float(x), float(y), float(z))
-                 x_0, y_0, z_0 = [float(coord) for coord in sys.argv[-4:-1]]
-                 n, e, u = geo.xyz2neu(x, y, z, x_0, y_0, z_0)
-                 coords_neugeo.append([n, e, u])
+            elif '--plh2xyz_geo' in sys.argv:
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
 
-        with open ('result_xyz2neu_wgs84.txt', 'w') as f:
-            f.write('n[m], e[m], u[m] \n')
-            for coords in coords_neugeo:
-                coords_neu_linegeo = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_neu_linegeo + '\n')
-    
-    elif '--blto92_geo' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-         	coords_bl92geo = []
-             
-         	for line in lines:
-                 line = line.strip()
-                 phi, lam, h = line.split(',')
-                 phi, lam, h = (float(phi), float(lam), float(h))
-                 result = geo.BLto92(phi, lam)
-                 x92, y92 = result[0] 
-                 coords_bl92geo.append([x92, y92])
+               	coords_xyzgeo = []
+               	for line in lines:
+                    line = line.strip()
+                    phi_str, lam_str, h_str = line.split(',')
+                    phi, lam, h = (float(phi_str), float(
+                        lam_str), float(h_str))
+                    x, y, z = geo.xyz2plh(phi, lam, h)
+                    coords_xyzgeo.append([x, y, z])
 
-        with open ('result_blto92_wgs84.txt', 'w') as f:
-            f.write('x[m], y[m] \n')
-            for coords in coords_bl92geo:
-                coords_bl92_linegeo = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_bl92_linegeo + '\n')
-                
-    elif '--blto2000_geo' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-         	coords_bl2000geo = []
-             
-         	for line in lines:
-                 line = line.strip()
-                 phi, lam, h = line.split(',')
-                 phi, lam, h = (float(phi), float(lam), float(h))
-                 result = geo.BLto2000(phi, lam)
-                 x2000, y2000 = result[0]  
-                 coords_bl2000geo.append([x2000, y2000])
+                with open('result_plh2xyz_wgs84.txt', 'w') as f:
+                    f.write('x[m], y[m], z[m] \n')
+                    for coords in coords_xyzgeo:
+                        coords_xyz_linegeo = ','.join(
+                            [str(coord)for coord in coords])
+                        f.write(coords_xyz_linegeo + '\n')
 
-        with open ('result_blto2000_wgs84.txt', 'w') as f:
-            f.write('x[m], y[m] \n')
-            for coords in coords_bl2000geo:
-                coords_bl2000_linegeo = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_bl2000_linegeo + '\n')
-   
+            elif '--xyz2neu_geo' in sys.argv:
+                coords_neugeo = []
+                with open(input_file_path, 'r') as f:
+              	  lines = f.readlines()
+               	lines = lines[header_lines:]
 
+               	for line in lines:
+                    line = line.strip()
+                    x, y, z = line.split(',')
+                    x, y, z = (float(x), float(y), float(z))
+                    x_0, y_0, z_0 = [float(coord)
+                                     for coord in sys.argv[-4:-1]]
+                    n, e, u = geo.xyz2neu(x, y, z, x_0, y_0, z_0)
+                    coords_neugeo.append([n, e, u])
 
-#elipsoida grs80                
-    elif '--xyz2plh_g80' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-         	coords_plhg80 = []
-         	for line in lines:
-                 line = line.strip()
-                 x_str, y_str, z_str = line.split(',')
-                 x, y, z = (float(x_str), float(y_str), float(z_str))
-                 p, l, h = g80.xyz2plh(x, y, z)
-                 coords_plhg80.append([p, l, h])
+                with open('result_xyz2neu_wgs84.txt', 'w') as f:
+                    f.write('n[m], e[m], u[m] \n')
+                    for coords in coords_neugeo:
+                        coords_neu_linegeo = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_neu_linegeo + '\n')
 
-        with open ('result_xyz2plh_grs80.txt', 'w') as f:
-            f.write('phi[deg], lam[deg], h[m] \n')
-            for coords in coords_plhg80:
-                coords_plh_lineg80 = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_plh_lineg80 + '\n')
-                
-    elif '--plh2xyz_g80' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
+            elif '--blto92_geo' in sys.argv:
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
+               	coords_bl92geo = []
 
-         	coords_xyzg80 = []
-         	for line in lines:
-                 line = line.strip()
-                 phi_str, lam_str, h_str = line.split(',')
-                 phi, lam, h = (float(phi_str), float(lam_str), float(h_str))
-                 x, y, z = g80.xyz2plh(phi, lam, h)
-                 coords_xyzg80.append([x, y, z])
+               	for line in lines:
+                    line = line.strip()
+                    phi, lam, h = line.split(',')
+                    phi, lam, h = (float(phi), float(lam), float(h))
+                    result = geo.BLto92(phi, lam)
+                    x92, y92 = result[0]
+                    coords_bl92geo.append([x92, y92])
 
-        with open ('result_plh2xyz_grs80.txt', 'w') as f:
-            f.write('x[m], y[m], z[m] \n')
-            for coords in coords_xyzg80:
-                coords_xyz_lineg80 = ','.join([str(coord)for coord in coords])
-                f.write(coords_xyz_lineg80 + '\n')
-                
-                
-    elif '--xyz2neu_g80' in sys.argv:
-        coords_neug80 = [] 
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-             
-         	for line in lines:
-                 line = line.strip()
-                 x, y, z = line.split(',')
-                 x, y, z = (float(x), float(y), float(z))
-                 x_0, y_0, z_0 = [float(coord) for coord in sys.argv[-4:-1]]
-                 n, e, u = g80.xyz2neu(x, y, z, x_0, y_0, z_0)
-                 coords_neug80.append([n, e, u])
+                with open('result_blto92_wgs84.txt', 'w') as f:
+                    f.write('x[m], y[m] \n')
+                    for coords in coords_bl92geo:
+                        coords_bl92_linegeo = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_bl92_linegeo + '\n')
 
-        with open ('result_xyz2neu_grs80.txt', 'w') as f:
-            f.write('n[m], e[m], u[m] \n')
-            for coords in coords_neug80:
-                coords_neu_lineg80 = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_neu_lineg80 + '\n')
-    
-    elif '--blto92_g80' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-         	coords_bl92g80 = []
-             
-         	for line in lines:
-                 line = line.strip()
-                 phi, lam, h = line.split(',')
-                 phi, lam, h = (float(phi), float(lam), float(h))
-                 result = g80.BLto92(phi, lam)
-                 x92, y92 = result[0]  
-                 coords_bl92g80.append([x92, y92])
+            elif '--blto2000_geo' in sys.argv:
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
+               	coords_bl2000geo = []
 
-        with open ('result_blto92_gr80.txt', 'w') as f:
-            f.write('x[m], y[m] \n')
-            for coords in coords_bl92g80:
-                coords_bl92_lineg80 = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_bl92_lineg80 + '\n')
-                
-    elif '--blto2000_g80' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-         	coords_bl2000g80 = []
-             
-         	for line in lines:
-                 line = line.strip()
-                 phi, lam, h = line.split(',')
-                 phi, lam, h = (float(phi), float(lam), float(h))
-                 result = g80.BLto2000(phi, lam)
-                 x2000, y2000 = result[0]  
-                 coords_bl2000g80.append([x2000, y2000])
+               	for line in lines:
+                    line = line.strip()
+                    phi, lam, h = line.split(',')
+                    phi, lam, h = (float(phi), float(lam), float(h))
+                    result = geo.BLto2000(phi, lam)
+                    x2000, y2000 = result[0]
+                    coords_bl2000geo.append([x2000, y2000])
 
-        with open ('result_blto2000_grs80.txt', 'w') as f:
-            f.write('x[m], y[m] \n')
-            for coords in coords_bl2000g80:
-                coords_bl2000_lineg80 = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_bl2000_lineg80 + '\n')                
-             
-                
-#elipsoida krasowskiego             
-    elif '--xyz2plh_kra' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-         	coords_plhkra = []
-         	for line in lines:
-                 line = line.strip()
-                 x_str, y_str, z_str = line.split(',')
-                 x, y, z = (float(x_str), float(y_str), float(z_str))
-                 p, l, h = kra.xyz2plh(x, y, z)
-                 coords_plhkra.append([p, l, h])
+                with open('result_blto2000_wgs84.txt', 'w') as f:
+                    f.write('x[m], y[m] \n')
+                    for coords in coords_bl2000geo:
+                        coords_bl2000_linegeo = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_bl2000_linegeo + '\n')
 
-        with open ('result_xyz2plh_kras.txt', 'w') as f:
-            f.write('phi[deg], lam[deg], h[m] \n')
-            for coords in coords_plhkra:
-                coords_plh_linekra = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_plh_linekra + '\n')
-                
-    elif '--plh2xyz_kra' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
+        #elipsoida grs80
+            elif '--xyz2plh_g80' in sys.argv:
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
+               	coords_plhg80 = []
+               	for line in lines:
+                    line = line.strip()
+                    x_str, y_str, z_str = line.split(',')
+                    x, y, z = (float(x_str), float(y_str), float(z_str))
+                    p, l, h = g80.xyz2plh(x, y, z)
+                    coords_plhg80.append([p, l, h])
 
-         	coords_xyzkra = []
-         	for line in lines:
-                 line = line.strip()
-                 phi_str, lam_str, h_str = line.split(',')
-                 phi, lam, h = (float(phi_str), float(lam_str), float(h_str))
-                 x, y, z = kra.xyz2plh(phi, lam, h)
-                 coords_xyzkra.append([x, y, z])
+                with open('result_xyz2plh_grs80.txt', 'w') as f:
+                    f.write('phi[deg], lam[deg], h[m] \n')
+                    for coords in coords_plhg80:
+                        coords_plh_lineg80 = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_plh_lineg80 + '\n')
 
-        with open ('result_plh2xyz_kras.txt', 'w') as f:
-            f.write('x[m], y[m], z[m] \n')
-            for coords in coords_xyzkra:
-                coords_xyz_linekra = ','.join([str(coord)for coord in coords])
-                f.write(coords_xyz_linekra + '\n')
-                
-                
-    elif '--xyz2neu_kra' in sys.argv:
-        coords_neukra = [] 
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-             
-         	for line in lines:
-                 line = line.strip()
-                 x, y, z = line.split(',')
-                 x, y, z = (float(x), float(y), float(z))
-                 x_0, y_0, z_0 = [float(coord) for coord in sys.argv[-4:-1]]
-                 n, e, u = kra.xyz2neu(x, y, z, x_0, y_0, z_0)
-                 coords_neukra.append([n, e, u])
+            elif '--plh2xyz_g80' in sys.argv:
+                with open(input_file_path, 'r') as f:
+                    lines = f.readlines()
+               	lines = lines[header_lines:]
 
-        with open ('result_xyz2neu_kras.txt', 'w') as f:
-            f.write('n[m], e[m], u[m] \n')
-            for coords in coords_neukra:
-                coords_neu_linekra = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_neu_linekra + '\n')
-    
-    elif '--blto92_kra' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-         	coords_bl92kra = []
-             
-         	for line in lines:
-                 line = line.strip()
-                 phi, lam, h = line.split(',')
-                 phi, lam, h = (float(phi), float(lam), float(h))
-                 result = kra.BLto92(phi, lam)
-                 x92, y92 = result[0] 
-                 coords_bl92kra.append([x92, y92])
+               	coords_xyzg80 = []
+               	for line in lines:
+                    line = line.strip()
+                    phi_str, lam_str, h_str = line.split(',')
+                    phi, lam, h = (float(phi_str), float(
+                        lam_str), float(h_str))
+                    x, y, z = g80.xyz2plh(phi, lam, h)
+                    coords_xyzg80.append([x, y, z])
 
-        with open ('result_blto92_kras.txt', 'w') as f:
-            f.write('x[m], y[m] \n')
-            for coords in coords_bl92kra:
-                coords_bl92_linekra = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_bl92_linekra + '\n')
-                
-    elif '--blto2000_kra' in sys.argv:
-        with open (input_file_path, 'r') as f:
-         	lines = f.readlines()
-         	lines = lines[header_lines:]
-         	coords_bl2000kra = []
-             
-         	for line in lines:
-                 line = line.strip()
-                 phi, lam, h = line.split(',')
-                 phi, lam, h = (float(phi), float(lam), float(h))
-                 result = kra.BLto2000(phi, lam)
-                 x2000, y2000 = result[0] 
-                 coords_bl2000kra.append([x2000, y2000])
+                with open('result_plh2xyz_grs80.txt', 'w') as f:
+                    f.write('x[m], y[m], z[m] \n')
+                    for coords in coords_xyzg80:
+                        coords_xyz_lineg80 = ','.join(
+                            [str(coord)for coord in coords])
+                        f.write(coords_xyz_lineg80 + '\n')
 
-        with open ('result_blto2000_kras.txt', 'w') as f:
-            f.write('x[m], y[m] \n')
-            for coords in coords_bl2000kra:
-                coords_bl2000_linekra = ','.join([str(coord) for coord in coords])
-                f.writelines(coords_bl2000_linekra + '\n')                
+            elif '--xyz2neu_g80' in sys.argv:
+                coords_neug80 = []
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
 
+               	for line in lines:
+                    line = line.strip()
+                    x, y, z = line.split(',')
+                    x, y, z = (float(x), float(y), float(z))
+                    x_0, y_0, z_0 = [float(coord)
+                                     for coord in sys.argv[-4:-1]]
+                    n, e, u = g80.xyz2neu(x, y, z, x_0, y_0, z_0)
+                    coords_neug80.append([n, e, u])
 
+                with open('result_xyz2neu_grs80.txt', 'w') as f:
+                    f.write('n[m], e[m], u[m] \n')
+                    for coords in coords_neug80:
+                        coords_neu_lineg80 = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_neu_lineg80 + '\n')
+
+            elif '--blto92_g80' in sys.argv:
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
+               	coords_bl92g80 = []
+
+               	for line in lines:
+                    line = line.strip()
+                    phi, lam, h = line.split(',')
+                    phi, lam, h = (float(phi), float(lam), float(h))
+                    result = g80.BLto92(phi, lam)
+                    x92, y92 = result[0]
+                    coords_bl92g80.append([x92, y92])
+
+                with open('result_blto92_gr80.txt', 'w') as f:
+                    f.write('x[m], y[m] \n')
+                    for coords in coords_bl92g80:
+                        coords_bl92_lineg80 = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_bl92_lineg80 + '\n')
+
+            elif '--blto2000_g80' in sys.argv:
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
+               	coords_bl2000g80 = []
+
+               	for line in lines:
+                    line = line.strip()
+                    phi, lam, h = line.split(',')
+                    phi, lam, h = (float(phi), float(lam), float(h))
+                    result = g80.BLto2000(phi, lam)
+                    x2000, y2000 = result[0]
+                    coords_bl2000g80.append([x2000, y2000])
+
+                with open('result_blto2000_grs80.txt', 'w') as f:
+                    f.write('x[m], y[m] \n')
+                    for coords in coords_bl2000g80:
+                        coords_bl2000_lineg80 = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_bl2000_lineg80 + '\n')
+
+        #elipsoida krasowskiego
+            elif '--xyz2plh_kra' in sys.argv:
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
+               	coords_plhkra = []
+               	for line in lines:
+                    line = line.strip()
+                    x_str, y_str, z_str = line.split(',')
+                    x, y, z = (float(x_str), float(y_str), float(z_str))
+                    p, l, h = kra.xyz2plh(x, y, z)
+                    coords_plhkra.append([p, l, h])
+
+                with open('result_xyz2plh_kras.txt', 'w') as f:
+                    f.write('phi[deg], lam[deg], h[m] \n')
+                    for coords in coords_plhkra:
+                        coords_plh_linekra = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_plh_linekra + '\n')
+
+            elif '--plh2xyz_kra' in sys.argv:
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
+
+               	coords_xyzkra = []
+               	for line in lines:
+                    line = line.strip()
+                    phi_str, lam_str, h_str = line.split(',')
+                    phi, lam, h = (float(phi_str), float(
+                        lam_str), float(h_str))
+                    x, y, z = kra.xyz2plh(phi, lam, h)
+                    coords_xyzkra.append([x, y, z])
+
+                with open('result_plh2xyz_kras.txt', 'w') as f:
+                    f.write('x[m], y[m], z[m] \n')
+                    for coords in coords_xyzkra:
+                        coords_xyz_linekra = ','.join(
+                            [str(coord)for coord in coords])
+                        f.write(coords_xyz_linekra + '\n')
+
+            elif '--xyz2neu_kra' in sys.argv:
+                coords_neukra = []
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
+
+               	for line in lines:
+                    line = line.strip()
+                    x, y, z = line.split(',')
+                    x, y, z = (float(x), float(y), float(z))
+                    x_0, y_0, z_0 = [float(coord)
+                                     for coord in sys.argv[-4:-1]]
+                    n, e, u = kra.xyz2neu(x, y, z, x_0, y_0, z_0)
+                    coords_neukra.append([n, e, u])
+
+                with open('result_xyz2neu_kras.txt', 'w') as f:
+                    f.write('n[m], e[m], u[m] \n')
+                    for coords in coords_neukra:
+                        coords_neu_linekra = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_neu_linekra + '\n')
+
+            elif '--blto92_kra' in sys.argv:
+                with open(input_file_path, 'r') as f:
+                 	lines = f.readlines()
+               	lines = lines[header_lines:]
+               	coords_bl92kra = []
+
+               	for line in lines:
+                    line = line.strip()
+                    phi, lam, h = line.split(',')
+                    phi, lam, h = (float(phi), float(lam), float(h))
+                    result = kra.BLto92(phi, lam)
+                    x92, y92 = result[0]
+                    coords_bl92kra.append([x92, y92])
+
+                with open('result_blto92_kras.txt', 'w') as f:
+                    f.write('x[m], y[m] \n')
+                    for coords in coords_bl92kra:
+                        coords_bl92_linekra = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_bl92_linekra + '\n')
+
+            elif '--blto2000_kra' in sys.argv:
+                with open(input_file_path, 'r') as f:
+               	  lines = f.readlines()
+               	lines = lines[header_lines:]
+               	coords_bl2000kra = []
+
+               	for line in lines:
+                    line = line.strip()
+                    phi, lam, h = line.split(',')
+                    phi, lam, h = (float(phi), float(lam), float(h))
+                    result = kra.BLto2000(phi, lam)
+                    x2000, y2000 = result[0]
+                    coords_bl2000kra.append([x2000, y2000])
+
+                with open('result_blto2000_kras.txt', 'w') as f:
+                    f.write('x[m], y[m] \n')
+                    for coords in coords_bl2000kra:
+                        coords_bl2000_linekra = ','.join(
+                            [str(coord) for coord in coords])
+                        f.writelines(coords_bl2000_linekra + '\n')
+
+    except IndexError:
+        print('BŁĄD: nie podano odpowiednich wartosci')
+    except SyntaxError:
+        print('BŁĄD: nie podano odpowiednich wartosci')
+    except FileNotFoundError:
+        print('BŁĄD: Niepoprawnie podana nazwa pliku z danymi początkowymi')
+    except ValueError:
+        print('Podaj współrzędne geocentryczne srodka układu (neu)')
+    finally:
+        print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
+ 
 
 
