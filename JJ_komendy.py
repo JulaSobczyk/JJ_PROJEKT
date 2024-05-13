@@ -87,8 +87,7 @@ class Transformacje:
         lam0 = np.deg2rad(19)
         phi = np.radians(phi)
         lam = np.radians(lam)
-        wyniki = []
-        # for phi, lam in zip (phi, lam):   
+        wyniki = []  
         b2 = self.a**2 * (1 - self.ecc2)
         ep2 = (self.a**2 - b2) / b2
         dlam = lam - lam0
@@ -204,7 +203,7 @@ if __name__ == "__main__":
                     phi_str, lam_str, h_str = line.split(',')
                     phi, lam, h = (float(phi_str), float(
                         lam_str), float(h_str))
-                    x, y, z = geo.xyz2plh(phi, lam, h)
+                    x, y, z = geo.plh2xyz(phi, lam, h)
                     coords_xyzgeo.append([x, y, z])
 
                 with open('result_plh2xyz_wgs84.txt', 'w') as f:
@@ -309,7 +308,7 @@ if __name__ == "__main__":
                     phi_str, lam_str, h_str = line.split(',')
                     phi, lam, h = (float(phi_str), float(
                         lam_str), float(h_str))
-                    x, y, z = g80.xyz2plh(phi, lam, h)
+                    x, y, z = g80.plh2xyz(phi, lam, h)
                     coords_xyzg80.append([x, y, z])
 
                 with open('result_plh2xyz_grs80.txt', 'w') as f:
@@ -414,7 +413,7 @@ if __name__ == "__main__":
                     phi_str, lam_str, h_str = line.split(',')
                     phi, lam, h = (float(phi_str), float(
                         lam_str), float(h_str))
-                    x, y, z = kra.xyz2plh(phi, lam, h)
+                    x, y, z = kra.plh2xyz(phi, lam, h)
                     coords_xyzkra.append([x, y, z])
 
                 with open('result_plh2xyz_kras.txt', 'w') as f:
