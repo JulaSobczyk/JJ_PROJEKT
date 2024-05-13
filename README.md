@@ -47,4 +47,5 @@ Program został napisany dla systemu operacyjnego Windows 10, w programie Spyder
 Problemy napotkane przy sprawdzaniu programu:
 - Występował problem podczas pisania kodu z wykorzystaniem i użytkowaniem bloków <try:, except:> oraz z samym zapisem do plików.
 - Pojawił się problem przy napisaniu kodu programu, w którym użytkownik sam wybiera elipsoidę w jakiej chce liczyć. Zamiast tego elipsoidy i transformacje do nich są odgórnie narzucone w postaci osobnych flag w terminalu.
+- Jeżeli użytkownik wpisze błędnie nazwę flagi, to program nie pokazuje nic, gdzie w przypadku poprawnie napisanego wykonanego polecenia w terminalu, program pokazuje komunikat informujący o poprawnym zapisie do pliku. Nie byłyśmy w stanie napisać kodu/warunku, który sprawdzałby, czy podana flaga jest jedną z tych dozwolonych, a jeżeli nią nie jest to zwracałby adekwatną informację.
 
