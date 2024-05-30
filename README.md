@@ -3,12 +3,12 @@
 ## Transformacje - dokumentacja
 
 Ten program został stworzony do przeprowadzania transformacji współrzędnych pomiędzy różnymi układami. 
-Możliwe jest przeprowadzenie transformacji na elipsoidach WGS84, GRS80 oraz Krasowskiego:
+Możliwe jest przeprowadzenie transformacji na elipsoidach WGS84, GRS80 oraz kilka transformacji przy użyciu elipsoidy Krasowskiego:
 
 ### 1. XYZ (geocentryczne) -> PLH (elipsoidalne fi, lam, h)
 -  Funkcja ta konwertuje współrzędne kartezjańskie X, Y i Z na szerokość geograficzną P, długość geograficzną L oraz wysokość H nad poziomem elipsoidy,
 - Argumenty XYZ (typ float) to wartości odpowiednio współrzędnej x, y, z w metrach w układzie kartezjańskim. 
-- Funkcja zwraca trzy wartości typu float w postaci krotki (P, L, H), gdzie P to szerokość geograficzna w radianach, L to długość geograficzna w radianach, a H to wysokość nad poziomem elipsoidy w metrach.
+- Funkcja zwraca trzy wartości typu float w postaci krotki (P, L, H), gdzie P to szerokość geograficzna w stopniach dziesiętnych, L to długość geograficzna w stopniach dziesiętnych, a H to wysokość nad poziomem elipsoidy w metrach.
 
 ### 2. PLH -> XYZ
 - Funkcja ta konwertuje współrzędne geograficzne P, L i H na współrzędne kartezjańskie X, Y i Z. 
@@ -19,12 +19,12 @@ Możliwe jest przeprowadzenie transformacji na elipsoidach WGS84, GRS80 oraz Kra
 - Funkcja przelicza zmiany we współrzędnych XYZ na zmiany wzdłuż północnego, wschodniego i pionowego kierunku. Wartości X, Y i Z odpowiadają współrzędnym geocentrycznym, a dX to wektor zmian we współrzędnych XYZ.
 - Argumentami są zmienne XYZ typu float wyrażone w metrach w układzie kartezjańskim oraz x_0, y_0, z_0 typu float.
 
-### 4. BL(GRS80, WGS84, Krasowski) -> PL2000
+### 4. BL(GRS80, WGS84) -> PL2000
 - Funkcja przelicza współrzędne geograficzne na współrzędne płaskie PL-2000 dla wybranej elipsoidy.
 - Argumentami metody są wartości B, L typu float wyrażone w stopniach dziesiętnych dla odpowiedniej elipsoidy.
 - Funkcja zwraca wartości x i y typu float gdzie X, Y to wartości współrzędnych płaskich w układzie PL-2000 w metrach.
 
-### 5. BL(GRS80, WGS84, Krasowski) -> PL1992
+### 5. BL(GRS80, WGS84) -> PL1992
 - Funkcja przelicza współrzędne geograficzne na współrzędne płaskie PL-1992 dla wybranej elipsoidy.
 - Argumentami metody są wartości B, L typu float wyrażone w stopniach dziesiętnych dla odpowiedniej elipsoidy.
 - Funkcja zwraca wartości x i y typu float gdzie X, Y to wartości współrzędnych płaskich w układzie PL-1992 w metrach.
@@ -55,7 +55,7 @@ Program został napisany dla systemu operacyjnego Windows 10, w programie Spyder
 Program przelicza współrzędne w trzech różnych elipsoidach (WGS84, GRS80 oraz Krasowskiego) oraz zmienia je między pięcioma różnym transformacjami (XYZ -> PLH, PLH -> XYZ, XYZ -> NEU, BL -> PL1992, BL -> PL2000). Wszystkie tansformacje wykonuje się z poziomu Wiersza poleceń, dalej nazywane skrótem 'cmd'. Aby uruchomić program, w pierwszej kolejnośc należy włączyć cmd i przejść w nim do folderu w któym znajduje się pobrany z repozytorium skrypt kodu. Następnie kolejność wpisywania transformacji w konsoli wygląda następująco:
 
 
-**python JJ_komendy.py --header_lines <cyfra oznaczająca od którego miejsca w pliku z danymi, te dane się rozpoczynają po nagłówku, licząc linijki kolejno od 0>  <flaga transformacji> <nazwa pliku z danymi, włącznie z jego rozszerzeniem>**
+**python JJ_komendy.py --header_lines {cyfra oznaczająca od którego miejsca w pliku z danymi, te dane się rozpoczynają po nagłówku, licząc linijki kolejno od 0} {odpowiednia flaga transformacji} {nazwa pliku z danymi, włącznie z jego rozszerzeniem}**
 
 
 *W terminalu wygląda to dla przykładu nastepująco*
@@ -82,8 +82,8 @@ Użytkownik wybiera spośród zaprogramowanych piętnastu flag, które odpowiada
 - *--xyz2plh_kra* -> Transformacja współrzędnych XYZ do PLH dla elipsoidy Krasowskiego
 - *--plh2xyz_kra* -> Transformacja współrzędnych PLH do XYZ dla elipsoidy Krasowskiego
 - *--xyz2neu_kra* -> Transformacja współrzędnych XYZ do NEU dla elipsoidy Krasowskiego
-- *--blto92_kra* -> Transformacja współrzędnych PLH (BL) do PL1992 dla elipsoidy Krasowskiego
-- *--blto2000_kra* -> Transformacja współrzędnych PLH (BL) do PL2000 dla elipsoidy Krasowskiego
+
+**Program nie przelicza współrzędnych do układów PL1992 i Pl2000 dla elipsoidy Krasowskiego** 
 
 Użytkownik nie ma możliwości dodawać własnej elipsoidy, dla której program transformował by współrzędne, więc jedyne czym może się posługiwać to wybieraniem odpowiednich flag. 
 
@@ -110,6 +110,9 @@ Uwagi końcowe przy użytkowaniu programu:
 - Przy transformacji XYZ -> NEU w każdej z trzech elipsoid, po zapisaniu w cmd flagi, należy równiez podać współrzędne środka układu, które oddzielone muszą być spacją. Dla przykładu, wygląda to następująco w konsoli:
 
 ![image](https://github.com/JulaSobczyk/JJ_projekt_repository/assets/166397896/6fb0d8b7-1a2e-4856-a80c-ecb69e95f588)
+
+- Dla transformacji do PLH->XYZ, BL->PL1992 i Bl->PL2000 współrzędne wyjściowe w pliku z danymi muszą być zapisane jako współrzędne elipsoidalne PLH, w stopniach dziesiętnych, gdzie każda kolejna współrzędna jest oddzielona przecinkiem. Tak dla przykładu wygląda poprawnie sformatowany plik:
+![image](https://github.com/JulaSobczyk/JJ_projekt_repository/assets/166397896/51dce1dd-7598-4382-9c2d-c9564f9fa190)
 
 - Plik z przeliczonymi współrzędnymi zapisuje się w tym samym folderze, w którym znajduje się skrypt kodu oraz plik z danymi współrzędnymi
   
