@@ -31,33 +31,24 @@ class Transformacje:
         Funkcje transforacji współrzędnych
         """
         
-    def xyz2plh(self, X, Y, Z, output = 'dec_degree'):
-        r   = sqrt(X**2 + Y**2)
-        lat_prev = atan(Z / (r * (1 - self.ecc2)))    
-        lat = 0
-        while abs(lat_prev - lat) > 0.000001/206265:    
-            lat_prev = lat
-            N = self.a / sqrt(1 - self.ecc2 * sin(lat_prev)**2)
-            h = r / cos(lat_prev) - N
-            lat = atan((Z/r) * (((1 - self.ecc2 * N/(N + h))**(-1))))
-        lon = atan(Y/X)
-        N = self.a / sqrt(1 - self.ecc2 * (sin(lat))**2);
-        h = r / cos(lat) - N       
-        if output == "dec_degree":
-            return degrees(lat), degrees(lon), h 
-        elif output == "dms":
-            lat = self.deg2dms(degrees(lat))
-            lon = self.deg2dms(degrees(lon))
-            return f"{lat[0]:02d}:{lat[1]:02d}:{lat[2]:.2f}", f"{lon[0]:02d}:{lon[1]:02d}:{lon[2]:.2f}", f"{h:.3f}"
-        else:
-            raise NotImplementedError(f"{output} - output format not defined")
+    def xyz2plh(self, x, y, z):
+        l = atan(y / x)     
+        p = np.sqrt(x**2 + y**2)   
+        phi = np.arctan(z / (p * (1 - self.ecc2)))
+        while True:
+            h = p/np.cos(phi) - self.Npu(phi)
+            phi_s = phi 
+            phi = np.arctan (z / (p * (1 - (self.ecc2 * (self.Npu(phi) / (self.Npu(phi) + h))))))
+            if np.abs(phi_s - phi) < (0.000001/206265):
+                break
+        return(degrees(phi), degrees(l), h)
     
     def plh2xyz(self, phi, lam, h):
         phi = radians(phi)
         lam = radians(lam)
-        X = (self.Npu(phi) + h) * cos(phi) * cos(lam)
-        Y = (self.Npu(phi) + h) * cos(phi) * sin(lam)
-        Z = (self.Npu(phi) * (1 - self.ecc2) + h) * sin(phi)
+        X = (self.Npu(phi) + h) * np.cos(phi) * np.cos(lam)
+        Y = (self.Npu(phi) + h) * np.cos(phi) * np.sin(lam)
+        Z = (self.Npu(phi) * (1 - self.ecc2) + h) * np.sin(phi)
         return X, Y, Z
     
         
@@ -189,8 +180,7 @@ if __name__ == "__main__":
                 with open('result_xyz2plh_wgs84.txt', 'w') as f:
                     f.write('phi[deg], lam[deg], h[m] \n')
                     for coords in coords_plhgeo:
-                        coords_plh_linegeo = ','.join(
-                            [str(coord) for coord in coords])
+                        coords_plh_linegeo = ','.join([str(coord) for coord in coords])
                         f.writelines(coords_plh_linegeo + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
@@ -212,7 +202,7 @@ if __name__ == "__main__":
                     f.write('x[m], y[m], z[m] \n')
                     for coords in coords_xyzgeo:
                         coords_xyz_linegeo = ','.join(
-                            [str(coord)for coord in coords])
+                            [str(f'{coord:.3f}')for coord in coords])
                         f.write(coords_xyz_linegeo + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
@@ -235,7 +225,7 @@ if __name__ == "__main__":
                     f.write('n[m], e[m], u[m] \n')
                     for coords in coords_neugeo:
                         coords_neu_linegeo = ','.join(
-                            [str(coord) for coord in coords])
+                            [str(f'{coord:.5f}') for coord in coords])
                         f.writelines(coords_neu_linegeo + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
@@ -257,7 +247,7 @@ if __name__ == "__main__":
                     f.write('x[m], y[m] \n')
                     for coords in coords_bl92geo:
                         coords_bl92_linegeo = ','.join(
-                            [str(coord) for coord in coords])
+                            [str(f'{coord:.3f}') for coord in coords])
                         f.writelines(coords_bl92_linegeo + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
@@ -279,7 +269,7 @@ if __name__ == "__main__":
                     f.write('x[m], y[m] \n')
                     for coords in coords_bl2000geo:
                         coords_bl2000_linegeo = ','.join(
-                            [str(coord) for coord in coords])
+                            [str(f'{coord:.3f}') for coord in coords])
                         f.writelines(coords_bl2000_linegeo + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
@@ -322,7 +312,7 @@ if __name__ == "__main__":
                     f.write('x[m], y[m], z[m] \n')
                     for coords in coords_xyzg80:
                         coords_xyz_lineg80 = ','.join(
-                            [str(coord)for coord in coords])
+                            [str(f'{coord:.3f}')for coord in coords])
                         f.write(coords_xyz_lineg80 + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
@@ -345,7 +335,7 @@ if __name__ == "__main__":
                     f.write('n[m], e[m], u[m] \n')
                     for coords in coords_neug80:
                         coords_neu_lineg80 = ','.join(
-                            [str(coord) for coord in coords])
+                            [str(f'{coord:.3f}') for coord in coords])
                         f.writelines(coords_neu_lineg80 + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
@@ -367,7 +357,7 @@ if __name__ == "__main__":
                     f.write('x[m], y[m] \n')
                     for coords in coords_bl92g80:
                         coords_bl92_lineg80 = ','.join(
-                            [str(coord) for coord in coords])
+                            [str(f'{coord:.3f}') for coord in coords])
                         f.writelines(coords_bl92_lineg80 + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
@@ -389,7 +379,7 @@ if __name__ == "__main__":
                     f.write('x[m], y[m] \n')
                     for coords in coords_bl2000g80:
                         coords_bl2000_lineg80 = ','.join(
-                            [str(coord) for coord in coords])
+                            [str(f'{coord:.3f}') for coord in coords])
                         f.writelines(coords_bl2000_lineg80 + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
@@ -410,7 +400,7 @@ if __name__ == "__main__":
                     f.write('phi[deg], lam[deg], h[m] \n')
                     for coords in coords_plhkra:
                         coords_plh_linekra = ','.join(
-                            [str(coord) for coord in coords])
+                            [str(f'{coord:.3f}') for coord in coords])
                         f.writelines(coords_plh_linekra + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
@@ -432,7 +422,7 @@ if __name__ == "__main__":
                     f.write('x[m], y[m], z[m] \n')
                     for coords in coords_xyzkra:
                         coords_xyz_linekra = ','.join(
-                            [str(coord)for coord in coords])
+                            [str(f'{coord:.3f}')for coord in coords])
                         f.write(coords_xyz_linekra + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
 
@@ -455,7 +445,7 @@ if __name__ == "__main__":
                     f.write('n[m], e[m], u[m] \n')
                     for coords in coords_neukra:
                         coords_neu_linekra = ','.join(
-                            [str(coord) for coord in coords])
+                            [str(f'{coord:.3f}') for coord in coords])
                         f.writelines(coords_neu_linekra + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
                         
@@ -468,8 +458,8 @@ if __name__ == "__main__":
         print('BŁĄD: Niepoprawnie podana nazwa pliku z danymi początkowymi')
     except ValueError:
         print('Błędnie zapisane współrzędne w pliku z danymi, lub jesli wykonujesz transformację neu, sprawdź czy wpisane są współrzędne srodka układu')
-    except TypeError:
-        print('Błędnie wpisano, którąs z flag lub argumenty. Sprawdz poprawnosć wpisana')
+    # except TypeError:
+        # print('Błędnie wpisano, którąs z flag lub argumenty. Sprawdz poprawnosć wpisana')
 
 
 
