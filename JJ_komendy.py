@@ -32,8 +32,8 @@ class Transformacje:
         """
         
     def xyz2plh(self, X, Y, Z, output = 'dec_degree'):
-        r   = sqrt(X**2 + Y**2)           # promień
-        lat_prev = atan(Z / (r * (1 - self.ecc2)))    # pierwsze przybliilizenie
+        r   = sqrt(X**2 + Y**2)
+        lat_prev = atan(Z / (r * (1 - self.ecc2)))    
         lat = 0
         while abs(lat_prev - lat) > 0.000001/206265:    
             lat_prev = lat
@@ -51,7 +51,6 @@ class Transformacje:
             return f"{lat[0]:02d}:{lat[1]:02d}:{lat[2]:.2f}", f"{lon[0]:02d}:{lon[1]:02d}:{lon[2]:.2f}", f"{h:.3f}"
         else:
             raise NotImplementedError(f"{output} - output format not defined")
-    
     
     def plh2xyz(self, phi, lam, h):
         phi = radians(phi)
@@ -458,50 +457,6 @@ if __name__ == "__main__":
                         coords_neu_linekra = ','.join(
                             [str(coord) for coord in coords])
                         f.writelines(coords_neu_linekra + '\n')
-                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
-
-            elif '--blto92_kra' in sys.argv:
-                with open(input_file_path, 'r') as f:
-                 	lines = f.readlines()
-               	lines = lines[header_lines:]
-               	coords_bl92kra = []
-
-               	for line in lines:
-                    line = line.strip()
-                    phi, lam, h = line.split(',')
-                    phi, lam, h = (float(phi), float(lam), float(h))
-                    result = kra.BLto92(phi, lam)
-                    x92, y92 = result[0]
-                    coords_bl92kra.append([x92, y92])
-
-                with open('result_blto92_kras.txt', 'w') as f:
-                    f.write('x[m], y[m] \n')
-                    for coords in coords_bl92kra:
-                        coords_bl92_linekra = ','.join(
-                            [str(coord) for coord in coords])
-                        f.writelines(coords_bl92_linekra + '\n')
-                    print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
-
-            elif '--blto2000_kra' in sys.argv:
-                with open(input_file_path, 'r') as f:
-               	  lines = f.readlines()
-               	lines = lines[header_lines:]
-               	coords_bl2000kra = []
-
-               	for line in lines:
-                    line = line.strip()
-                    phi, lam, h = line.split(',')
-                    phi, lam, h = (float(phi), float(lam), float(h))
-                    result = kra.BLto2000(phi, lam)
-                    x2000, y2000 = result[0]
-                    coords_bl2000kra.append([x2000, y2000])
-
-                with open('result_blto2000_kras.txt', 'w') as f:
-                    f.write('x[m], y[m] \n')
-                    for coords in coords_bl2000kra:
-                        coords_bl2000_linekra = ','.join(
-                            [str(coord) for coord in coords])
-                        f.writelines(coords_bl2000_linekra + '\n')
                     print('Brawo, program wykonał zadanie poprawnie a plik został utworzony pod nazwą "result_<nazwa transformacji".txt')
                         
 
