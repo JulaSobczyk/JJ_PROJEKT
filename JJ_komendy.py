@@ -41,6 +41,7 @@ class Transformacje:
             phi = np.arctan (z / (p * (1 - (self.ecc2 * (self.Npu(phi) / (self.Npu(phi) + h))))))
             if np.abs(phi_s - phi) < (0.000001/206265):
                 break
+        
         return(degrees(phi), degrees(l), h)
     
     def plh2xyz(self, phi, lam, h):
