@@ -31,26 +31,38 @@ class Transformacje:
         Funkcje transforacji współrzędnych
         """
         
-    def xyz2plh(self, x, y, z):
-        l = atan(y / x)     
-        p = np.sqrt(x**2 + y**2)   
-        phi = np.arctan(z / (p * (1 - self.ecc2)))
-        while True:
-            h = p/np.cos(phi) - self.Npu(phi)
-            phi_s = phi 
-            phi = np.arctan (z / (p * (1 - (self.ecc2 * (self.Npu(phi) / (self.Npu(phi) + h))))))
-            if np.abs(phi_s - phi) < (0.000001/206265):
-                break
-        
-        return(degrees(phi), degrees(l), h)
+    def xyz2plh(self, X, Y, Z, output = 'dec_degree'):
+        r   = sqrt(X**2 + Y**2)           # promień
+        lat_prev = atan(Z / (r * (1 - self.ecc2)))    # pierwsze przybliilizenie
+        lat = 0
+        while abs(lat_prev - lat) > 0.000001/206265:    
+            lat_prev = lat
+            N = self.a / sqrt(1 - self.ecc2 * sin(lat_prev)**2)
+            h = r / cos(lat_prev) - N
+            lat = atan((Z/r) * (((1 - self.ecc2 * N/(N + h))**(-1))))
+        lon = atan(Y/X)
+        N = self.a / sqrt(1 - self.ecc2 * (sin(lat))**2);
+        h = r / cos(lat) - N       
+        if output == "dec_degree":
+            return degrees(lat), degrees(lon), h 
+        elif output == "dms":
+            lat = self.deg2dms(degrees(lat))
+            lon = self.deg2dms(degrees(lon))
+            return f"{lat[0]:02d}:{lat[1]:02d}:{lat[2]:.2f}", f"{lon[0]:02d}:{lon[1]:02d}:{lon[2]:.2f}", f"{h:.3f}"
+        else:
+            raise NotImplementedError(f"{output} - output format not defined")
+            
     
     def plh2xyz(self, phi, lam, h):
         phi = radians(phi)
         lam = radians(lam)
-        X = (self.Npu(phi) + h) * np.cos(phi) * np.cos(lam)
-        Y = (self.Npu(phi) + h) * np.cos(phi) * np.sin(lam)
-        Z = (self.Npu(phi) * (1 - self.ecc2) + h) * np.sin(phi)
+        Rn = self.a / np.sqrt((1 - self.ecc2 * (sin(phi))**2))
+        q = Rn * self.ecc2 * sin(phi)
+        X = (Rn + h) * np.cos(phi) * np.cos(lam)
+        Y = (Rn + h) * np.cos(phi) * np.sin(lam)
+        Z = (Rn + h) * np.sin(phi) - q
         return X, Y, Z
+
     
         
     def xyz2neu(self, x, y, z, x_0, y_0, z_0):
